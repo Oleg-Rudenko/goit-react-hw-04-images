@@ -31,7 +31,7 @@ export const App = () => {
   };
 
   const handleClickMore = async () => {
-    setIsLoading({ isLoading: true });
+    setPageNr(prevPage => prevPage + 1);
     const response = await fetchImages(currentSearch, pageNr);
     setImages([...images, ...response]);
     setIsLoading(false);
@@ -68,15 +68,15 @@ export const App = () => {
         paddingBottom: '24px',
       }}
     >
-      {isLoading && (pageNr === 1)}
-        
-          <Searchbar onSubmit={handleSubmit} />
-          <ImageGallery onImageClick={handleImageClick} images={images} />
-      
-          {isLoading && (pageNr >= 2) ? <Loader /> : null}
-          {images.length > 0 ? <Button onClick={handleClickMore} /> : null}
-        
-     
+      {isLoading && pageNr === 1 && <Loader />}
+
+      <Searchbar onSubmit={handleSubmit} />
+      <ImageGallery onImageClick={handleImageClick} images={images} />
+
+      {images.length >= 12 && !isLoading && (
+        <Button onClick={handleClickMore} />
+      )}
+
       {modalOpen ? (
         <Modal src={modalImg} alt={modalAlt} handleClose={handleModalClose} />
       ) : null}
