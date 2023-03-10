@@ -16,27 +16,29 @@ export const App = () => {
   const [modalImg, setModalImg] = useState('');
   const [modalAlt, setModalAlt] = useState('');
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setIsLoading({ isLoading: true });
-    const inputForSearch = e.target.elements.inputForSearch;
-    if (inputForSearch.value.trim() === '') {
-      return;
-    }
-    const response = await fetchImages(inputForSearch.value, 1);
-    setImages(response);
+const handleSubmit = async e => {
+  e.preventDefault();
+  setIsLoading(true);
+  const inputForSearch = e.target.elements.inputForSearch;
+  if (inputForSearch.value.trim() === '') {
     setIsLoading(false);
-    setCurrentSearch(inputForSearch.value);
-    setPageNr(2);
-  };
+    return;
+  }
+  const response = await fetchImages(inputForSearch.value, 1);
+  setImages(response);
+  setIsLoading(false);
+  setCurrentSearch(inputForSearch.value);
+  setPageNr(2);
+};
 
-  const handleClickMore = async () => {
-    setPageNr(prevPage => prevPage + 1);
-    const response = await fetchImages(currentSearch, pageNr);
-    setImages([...images, ...response]);
-    setIsLoading(false);
-    setPageNr(pageNr + 1);
-  };
+const handleClickMore = async () => {
+  setIsLoading(true);
+  setPageNr(prevPage => prevPage + 1);
+  const response = await fetchImages(currentSearch, pageNr);
+  setImages([...images, ...response]);
+  setIsLoading(false);
+  setPageNr(pageNr + 1);
+};
 
   const handleImageClick = e => {
     setModalOpen(true);
@@ -59,27 +61,25 @@ export const App = () => {
     window.addEventListener('keydown', handleKeyDown);
   }, []);
 
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        gridGap: '16px',
-        paddingBottom: '24px',
-      }}
-    >
-      {isLoading && pageNr === 1 && <Loader />}
+ return (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr',
+      gridGap: '16px',
+      paddingBottom: '24px',
+    }}
+  >
+    <Searchbar onSubmit={handleSubmit} />
+    {isLoading ? <Loader /> : <ImageGallery onImageClick={handleImageClick} images={images} />}
+   
+    {images.length >= 12 && !isLoading && (
+      <Button onClick={handleClickMore} />
+    )}
 
-      <Searchbar onSubmit={handleSubmit} />
-      <ImageGallery onImageClick={handleImageClick} images={images} />
-
-      {images.length >= 12 && !isLoading && (
-        <Button onClick={handleClickMore} />
-      )}
-
-      {modalOpen ? (
-        <Modal src={modalImg} alt={modalAlt} handleClose={handleModalClose} />
-      ) : null}
-    </div>
-  );
+    {modalOpen ? (
+      <Modal src={modalImg} alt={modalAlt} handleClose={handleModalClose} />
+    ) : null}
+  </div>
+);
 };
